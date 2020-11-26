@@ -37,11 +37,20 @@ class AppServiceProvider extends ServiceProvider
         ], 'inventory-assets');
 
         $this->initBladeDirectives();
+
+        // Config
+        $this->publishes([
+            __DIR__ . '/../../config/inventory.php' => config_path('inventory.php'),
+        ], 'inventory-config');
     }
 
     public function register()
     {
-        //
+        // Config
+        $this->mergeConfigFrom(
+            __DIR__ . '/../../config/inventory.php',
+            'inventory'
+        );
     }
 
     protected function initBladeDirectives()

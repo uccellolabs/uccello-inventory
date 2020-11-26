@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'type' => 'Type',
     'product' => 'Product',
     'vat_rate' => 'VAT rate',
     'unit_price' => 'Unit price',
@@ -9,6 +10,7 @@ return [
     'unit' => 'Unit',
     'price_excl_tax' => 'Price excl. tax',
     'price_incl_tax' => 'Price incl. tax',
+    'description' => 'Description',
     'excl' => 'Excl. Tax',
     'incl' => 'Incl. Tax',
     'vat' => 'VAT',
@@ -16,4 +18,5 @@ return [
     'total_vat' => 'Amount VAT',
     'total_incl_tax' => 'Amount incl. tax',
     'totals' => 'Totals',
+    'add_line' => 'Add',
 ];

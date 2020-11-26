@@ -2,6 +2,7 @@
 
 namespace Uccello\Inventory\Support\Traits;
 
+use Uccello\Core\Models\Entity;
 use Uccello\Core\Models\Module;
 
 trait IsInventoryModule
@@ -14,7 +15,7 @@ trait IsInventoryModule
     //     ],
     //     'lines' => [
     //         'related_id' => 'related_id',
-    //         'product_id' => 'product_id',
+    //         'product_uuid' => 'product_uuid',
     //         'label' => 'label',
     //         'description' => 'description',
     //         'vat_rate' => 'vat_rate',
@@ -28,14 +29,20 @@ trait IsInventoryModule
     //     ]
     // ];
 
+    protected $stopUpdateEvent = false;
+
     public static function bootIsInventoryModule()
     {
         static::created(function ($model) {
             $model->saveLines();
+            $model->saveHeaderTotals();
         });
 
         static::updated(function ($model) {
-            $model->saveLines();
+            if (!$model->stopUpdateEvent) {
+                $model->saveLines();
+                $model->saveHeaderTotals();
+            }
         });
     }
 
@@ -80,72 +87,57 @@ trait IsInventoryModule
         return $totals;
     }
 
-    protected function saveHeaderTotals()
+    public function getLineModule($line)
     {
-        $this->{$this->inventoryMapping['header']['total_excl_tax']} = (float) request('total_excl_tax');
-        $this->{$this->inventoryMapping['header']['total_incl_tax']} = (float) request('total_incl_tax');
-        $this->save();
-    }
+        $module = null;
 
-    protected function saveLines()
-    {
-        $lineIds = [];
+        $uuid = $line->{$this->inventoryMapping['lines']['product_uuid']};
+        if ($uuid) {
+            $entity = Entity::find($uuid);
 
-        foreach (request('lines') as $i => $line) {
-            // Add line id
-            if ($line['id']) {
-                $lineIds[] = $line['id'];
+            if ($entity) {
+                $module = Module::find($entity->module_id);
             }
-
-            $inventoryLine = $this->lines()->findOrNew($line['id']);
-            $inventoryLine->{$this->inventoryMapping['lines']['related_id']} = $this->getKey();
-            $inventoryLine->{$this->inventoryMapping['lines']['product_id']} = $line['product_id'];
-            $inventoryLine->{$this->inventoryMapping['lines']['label']} = $line['label'];
-            // $inventoryLine->{$this->inventoryMapping['lines']['description']} = $line['description'];
-            $inventoryLine->{$this->inventoryMapping['lines']['vat_rate']} = $line['vat_rate'];
-            $inventoryLine->{$this->inventoryMapping['lines']['unit_price']} = $line['unit_price'];
-            $inventoryLine->{$this->inventoryMapping['lines']['price_type']} = $line['price_type'];
-            $inventoryLine->{$this->inventoryMapping['lines']['quantity']} = $line['quantity'];
-            $inventoryLine->{$this->inventoryMapping['lines']['unit']} = $line['unit'];
-            $inventoryLine->{$this->inventoryMapping['lines']['price_excl_tax']} = $line['price_excl_tax'];
-            $inventoryLine->{$this->inventoryMapping['lines']['price_incl_tax']} = $line['price_incl_tax'];
-            $inventoryLine->{$this->inventoryMapping['lines']['sequence']} = $i;
-            $this->lines()->save($inventoryLine);
-
-            $lineIds[] = $inventoryLine->getKey();
         }
 
-        // Delete removed lines
-        $this->lines()->whereNotIn('id', $lineIds)->delete(); // TODO: replace id by getKeyName()
+        return $module;
     }
 
-    /**
-     * Returns fields mapping for a module.
-     *
-     * @param \Uccello\Core\Models\Module $module
-     *
-     * @return Stdclass|null
-     */
-    protected function getFieldsMapping(Module $module)
+    public function getLineProduct($line)
     {
-        $fieldsMapping = null;
+        $product = null;
 
-        $detailedModules = $this->module->data->detailed_modules ?? null;
-        if (is_array($detailedModules)) {
-            foreach ($detailedModules as $detailedModule) {
-                if ($detailedModule->name === $module->name) {
-                    $fieldsMapping = $detailedModule->mapping;
-                    break;
+        $uuid = $line->{$this->inventoryMapping['lines']['product_uuid']};
+        if ($uuid) {
+            $entity = Entity::find($uuid);
+
+            if ($entity) {
+                $module = Module::find($entity->module_id);
+                if ($module) {
+                    $modelClass = $module->model_class;
+                    $product = $modelClass::find($entity->record_id);
                 }
             }
         }
 
-        return $fieldsMapping;
+        return $product;
     }
 
     public function getLineProductId($line)
     {
-        return $line->{$this->inventoryMapping['lines']['product_id']};
+        $productId = null;
+
+        $product = $this->getLineProduct($line);
+        if ($product) {
+            $productId = $product->getKey();
+        }
+
+        return $productId;
+    }
+
+    public function getLineProductUuid($line)
+    {
+        return $line->{$this->inventoryMapping['lines']['product_uuid']};
     }
 
     public function getLineLabel($line)
@@ -165,22 +157,29 @@ trait IsInventoryModule
 
     public function getLineVatRate($line): float
     {
-        return $line->{$this->inventoryMapping['lines']['vat_rate']};
+        return $line->{$this->inventoryMapping['lines']['vat_rate']} ?? config('inventory.default_vat_rate');
     }
 
-    public function getLinePriceType($line)
+    public function getLinePriceType($line, $translate = false)
     {
-        return trans('inventory::inventory.' . $line->{$this->inventoryMapping['lines']['price_type']});
+        $lignePriceType = $line->{$this->inventoryMapping['lines']['price_type']} ?? 'excl';
+        if ($translate) {
+            $priceType = trans('inventory::inventory.' . $lignePriceType);
+        } else {
+            $priceType = $lignePriceType;
+        }
+
+        return $priceType;
     }
 
     public function getLineQuantity($line) : float
     {
-        return $line->{$this->inventoryMapping['lines']['quantity']};
+        return $line->{$this->inventoryMapping['lines']['quantity']} ?? 1;
     }
 
     public function getLineUnit($line)
     {
-        return $line->{$this->inventoryMapping['lines']['unit']};
+        return $line->{$this->inventoryMapping['lines']['unit']} ?? config('inventory.default_unit');
     }
 
     public function getLineUnitPriceExclTax($line) : float
@@ -215,16 +214,70 @@ trait IsInventoryModule
 
     public function getLineTotalExclTax($line) : float
     {
-        return $line->{$this->inventoryMapping['lines']['price_excl_tax']};
+        return $line->{$this->inventoryMapping['lines']['price_excl_tax']} ?? 0;
     }
 
     public function getLineTotalInclTax($line) : float
     {
-        return $line->{$this->inventoryMapping['lines']['price_incl_tax']};
+        return $line->{$this->inventoryMapping['lines']['price_incl_tax']} ?? 0;
     }
 
     public function getLineVatAmount($line) : float
     {
-        return $this->getLineTotalInclTax($line) - $this->getLineTotalExclTax($line);
+        return $this->getLineTotalInclTax($line) - $this->getLineTotalExclTax($line) ?? 0;
+    }
+
+    protected function saveHeaderTotals()
+    {
+        $save = false;
+
+        $totals = $this->totals;
+        if ($this->{$this->inventoryMapping['header']['total_excl_tax']}) {
+            $this->{$this->inventoryMapping['header']['total_excl_tax']} = (float) $totals['total_excl_tax'];
+            $save = true;
+        }
+
+        if ($this->{$this->inventoryMapping['header']['total_incl_tax']}) {
+            $this->{$this->inventoryMapping['header']['total_incl_tax']} = (float) $totals['total_incl_tax'];
+            $save = true;
+        }
+
+        if ($save) {
+            $this->stopUpdateEvent = true; // Mandatory else the event is launch a lot of times
+            $this->save();
+            $this->stopUpdateEvent = false;
+        }
+    }
+
+    protected function saveLines()
+    {
+        $lineIds = [];
+
+        foreach (request('lines') as $i => $line) {
+            // Add line id
+            if ($line['id']) {
+                $lineIds[] = $line['id'];
+            }
+
+            $inventoryLine = $this->lines()->findOrNew($line['id']);
+            $inventoryLine->{$this->inventoryMapping['lines']['related_id']} = $this->getKey();
+            $inventoryLine->{$this->inventoryMapping['lines']['product_uuid']} = $line['product_uuid'];
+            $inventoryLine->{$this->inventoryMapping['lines']['label']} = $line['label'];
+            $inventoryLine->{$this->inventoryMapping['lines']['description']} = $line['description'];
+            $inventoryLine->{$this->inventoryMapping['lines']['vat_rate']} = $line['vat_rate'];
+            $inventoryLine->{$this->inventoryMapping['lines']['unit_price']} = $line['unit_price'];
+            $inventoryLine->{$this->inventoryMapping['lines']['price_type']} = $line['price_type'];
+            $inventoryLine->{$this->inventoryMapping['lines']['quantity']} = $line['quantity'];
+            $inventoryLine->{$this->inventoryMapping['lines']['unit']} = $line['unit'];
+            $inventoryLine->{$this->inventoryMapping['lines']['price_excl_tax']} = $line['price_excl_tax'];
+            $inventoryLine->{$this->inventoryMapping['lines']['price_incl_tax']} = $line['price_incl_tax'];
+            $inventoryLine->{$this->inventoryMapping['lines']['sequence']} = $i;
+            $this->lines()->save($inventoryLine);
+
+            $lineIds[] = $inventoryLine->getKey();
+        }
+
+        // Delete removed lines
+        $this->lines()->whereNotIn('id', $lineIds)->delete(); // TODO: replace id by getKeyName()
     }
 }

@@ -13,11 +13,11 @@
                     </thead>
                     <tbody>
                         @foreach ($record->vatTotals as $vatTotal)
-                            <tr class="total-line-template">
-                                <td class="vat-rate">{{ $vatTotal['vat_rate'] }}%</td>
-                                <td class="total-excl-tax right-align">{{ $vatTotal['total_excl_tax'] }}</td>
-                                <td class="total-vat right-align">{{ $vatTotal['total_vat'] }}</td>
-                                <td class="total-incl-tax right-align">{{ $vatTotal['total_incl_tax'] }}</td>
+                            <tr>
+                                <td class="vat-rate">{{ number_format($vatTotal['vat_rate'], config('inventory.format.decimals'), config('inventory.format.decimal_point'), config('inventory.format.thousands_separator')) }}%</td>
+                                <td class="total-excl-tax right-align">{{ number_format($vatTotal['total_excl_tax'], config('inventory.format.decimals'), config('inventory.format.decimal_point'), config('inventory.format.thousands_separator')) }}</td>
+                                <td class="total-vat right-align">{{ number_format($vatTotal['total_vat'], config('inventory.format.decimals'), config('inventory.format.decimal_point'), config('inventory.format.thousands_separator')) }}</td>
+                                <td class="total-incl-tax right-align">{{ number_format($vatTotal['total_incl_tax'], config('inventory.format.decimals'), config('inventory.format.decimal_point'), config('inventory.format.thousands_separator')) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -25,9 +25,9 @@
                         <tr class="total">
                             @php($totals = $record->totals)
                             <th>{{ trans('inventory::inventory.totals') }}</th>
-                            <th class="total-excl-tax right-align">{{ $totals['total_excl_tax'] }}</th>
-                            <th class="total-vat right-align">{{ $totals['total_vat'] }}</th>
-                            <th class="total-incl-tax right-align">{{ $totals['total_incl_tax'] }}</th>
+                            <th class="total-excl-tax right-align">{{ number_format($totals['total_excl_tax'], config('inventory.format.decimals'), config('inventory.format.decimal_point'), config('inventory.format.thousands_separator')) }}</th>
+                            <th class="total-vat right-align">{{ number_format($totals['total_vat'], config('inventory.format.decimals'), config('inventory.format.decimal_point'), config('inventory.format.thousands_separator')) }}</th>
+                            <th class="total-incl-tax right-align">{{ number_format($totals['total_incl_tax'], config('inventory.format.decimals'), config('inventory.format.decimal_point'), config('inventory.format.thousands_separator')) }}</th>
                         </tr>
                     </tfoot>
                 </table>
