@@ -31,8 +31,8 @@ Add the following lines to the model related to the module you want to transform
 
     protected $inventoryMapping = [
         'header' => [
-            'total_excl_tax' => 'total_excl_tax',
-            'total_incl_tax' => 'total_incl_tax',
+            'total_excl_tax' => 'total_excl_tax', // Replace the value by the name of the field in your module (for automatic update)
+            'total_incl_tax' => 'total_incl_tax', // Replace the value by the name of the field in your module (for automatic update)
         ],
 
       	// Replace all values by your columns names
