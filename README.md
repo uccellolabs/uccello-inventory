@@ -25,7 +25,7 @@ Add the following lines to the model related to the module you want to transform
 
   use Uccello\Inventory\Support\Traits\IsInventoryModule;
 
-	class Order
+  class Order
   {
     use IsInventoryModule;
 
