@@ -94,17 +94,17 @@ class AlterOrderLinesTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('order_id')->nullable();
             $table->unsignedInteger('product_id')->nullable();
-		        $table->string('product_uuid')->nullable();
-        		$table->string('label')->nullable();
-        		$table->text('description')->nullable();
-		        $table->decimal('vat_rate', 5, 2)->nullable()
+            $table->string('product_uuid')->nullable();
+            $table->string('label')->nullable();
+            $table->text('description')->nullable();
+            $table->decimal('vat_rate', 5, 2)->nullable()
             $table->decimal('unit_price', 13, 2)->nullable();
-        		$table->string('price_type')->nullable()
+            $table->string('price_type')->nullable()
             $table->decimal('qty', 13, 2)->nullable();
             $table->decimal('price', 13, 2)->nullable();
-        		$table->string('unit')->nullable();
+            $table->string('unit')->nullable();
             $table->decimal('price_excl_tax', 13, 2)->nullable();
-		        $table->decimal('price_incl_tax', 13, 2)->nullable()
+            $table->decimal('price_incl_tax', 13, 2)->nullable()
             $table->timestamps();
 
             $table->foreign('order_id')->references('id')->on('orders');
