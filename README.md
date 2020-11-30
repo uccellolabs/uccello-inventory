@@ -8,8 +8,13 @@ Thanks to this package it becomes very easy to transform an existing module into
 
 You can easily install this package using the following command line:
 
-`composer require uccello/inventory`
+```bash
+$ composer require uccello/inventory
 
+$ php artisan vendor:publish --tag inventory-config
+```
+
+You can modify `config/inventory.php` and adapt the config.
 
 
 ## Transform a classic module into an Inventory module
