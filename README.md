@@ -11,6 +11,7 @@ You can easily install this package using the following command line:
 ```bash
 $ composer require uccello/inventory
 
+$ php artisan vendor:publish --tag inventory-assets
 $ php artisan vendor:publish --tag inventory-config
 ```
 
