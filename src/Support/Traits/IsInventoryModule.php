@@ -152,7 +152,7 @@ trait IsInventoryModule
 
     public function getLineUnitPrice($line) : float
     {
-        return $line->{$this->inventoryMapping['lines']['unit_price']};
+        return $line->{$this->inventoryMapping['lines']['unit_price']} ?? 0;
     }
 
     public function getLineVatRate($line): float
@@ -229,31 +229,22 @@ trait IsInventoryModule
 
     protected function saveHeaderTotals()
     {
-        $save = false;
-
         $totals = $this->totals;
-        if ($this->{$this->inventoryMapping['header']['total_excl_tax']}) {
-            $this->{$this->inventoryMapping['header']['total_excl_tax']} = (float) $totals['total_excl_tax'];
-            $save = true;
-        }
 
-        if ($this->{$this->inventoryMapping['header']['total_incl_tax']}) {
-            $this->{$this->inventoryMapping['header']['total_incl_tax']} = (float) $totals['total_incl_tax'];
-            $save = true;
-        }
+        $this->{$this->inventoryMapping['header']['total_excl_tax']} = (float) $totals['total_excl_tax'];
+        $this->{$this->inventoryMapping['header']['total_incl_tax']} = (float) $totals['total_incl_tax'];
 
-        if ($save) {
-            $this->stopUpdateEvent = true; // Mandatory else the event is launch a lot of times
-            $this->save();
-            $this->stopUpdateEvent = false;
-        }
+        $this->stopUpdateEvent = true; // Mandatory else the event is launch a lot of times
+        $this->save();
+        $this->stopUpdateEvent = false;
     }
 
     protected function saveLines()
     {
         $lineIds = [];
 
-        foreach (request('lines') as $i => $line) {
+        $lines = (array) request('lines');
+        foreach ($lines as $i => $line) {
             // Add line id
             if ($line['id']) {
                 $lineIds[] = $line['id'];

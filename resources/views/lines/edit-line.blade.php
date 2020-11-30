@@ -7,10 +7,11 @@
         <div class="input-field col s12">
             <select class="browser-default related-module-selector">
                 <option value=""></option>
-                @foreach ($relatedModules as $_relatedModule)
-                    @php($relatedModule = ucmodule($_relatedModule->name))
+                @foreach ($relatedModules as $moduleName => $moduleData)
+                    @php($relatedModule = ucmodule($moduleName))
+                    @continue(empty($relatedModule))
                     <option value="{{ $relatedModule->name }}"
-                        data-search="{{ $_relatedModule->search ?? '' }}"
+                        data-search="{{ $moduleData->search ?? '' }}"
                         @if ($lineModule && $lineModule->name === $relatedModule->name)selected="selected"@endif>{{ uctrans($relatedModule->name, $relatedModule) }}</option>
                 @endforeach
             </select>

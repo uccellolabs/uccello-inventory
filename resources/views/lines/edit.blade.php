@@ -28,9 +28,10 @@
                                 <div class="input-field col s12">
                                     <select class="browser-default related-module-selector">
                                         <option value=""></option>
-                                        @foreach ($relatedModules as $_relatedModule)
-                                            @php($relatedModule = ucmodule($_relatedModule->name))
-                                            <option value="{{ $relatedModule->name }}" data-search="{{ $_relatedModule->search ?? '' }}">{{ uctrans($relatedModule->name, $relatedModule) }}</option>
+                                        @foreach ($relatedModules as $moduleName => $moduleData)
+                                            @php($relatedModule = ucmodule($moduleName))
+                                            @continue(empty($relatedModule))
+                                            <option value="{{ $relatedModule->name }}" data-search="{{ $moduleData->search ?? '' }}">{{ uctrans($relatedModule->name, $relatedModule) }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -115,8 +116,8 @@
 </div>
 
 @section('extra-content')
-    @foreach ($relatedModules as $_relatedModule)
-        @php($relatedModule = ucmodule($_relatedModule->name))
+@foreach ($relatedModules as $moduleName => $moduleData)
+        @php($relatedModule = ucmodule($moduleName))
         @if (!empty($relatedModule) && Auth::user()->canRetrieve($domain, $relatedModule))
         <div id="inventoryModal_{{ $relatedModule->name }}"
             class="modal"
@@ -172,5 +173,5 @@
 @append
 
 @section('extra-script')
-    {{ Html::script(mix('js/app.js', 'vendor/uccello/inventory')) }}
+    {{ Html::script(mix('js/script.js', 'vendor/uccello/inventory')) }}
 @append

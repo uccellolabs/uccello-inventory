@@ -8,7 +8,7 @@ class Inventory {
 
         this.initListeners();
 
-        if ($('tr:not(.detailed-line-template):not(.detailed-line-description-template').length > 0) {
+        if ($('tbody tr:not(.detailed-line-template):not(.detailed-line-description-template)', this.table).length > 0) {
             this.calculateTotal();
         } else {
             this.addLine();
