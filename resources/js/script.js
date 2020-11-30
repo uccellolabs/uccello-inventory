@@ -159,7 +159,19 @@ class Inventory {
                 event.preventDefault();
                 const modal = $(datatable.table).parents('.modal:first');
 
-                const url = $(modal).data('record-detail-url').replace('%id%', recordId);
+                let url = $(modal).data('record-detail-url').replace('%id%', recordId) + '?';
+
+                // Add form input values in the URL
+                $('.input-field :input').each((index, el) => {
+                    let element = $(el);
+                    let param = element.attr('name');
+                    let value = element.val();
+
+                    if (param && value) {
+                        url += param+'='+value+'&';
+                    }
+                });
+
                 $.get(url).then(record => {
                     // Uuid
                     $(`#product_uuid${lineIndex}`).val(record.uuid);
@@ -198,6 +210,17 @@ class Inventory {
                         $(`#unit${lineIndex}`).val(record[unit]);
                     }
 
+                    // Dispatch custom event with line and product information
+                    let customEvent = new CustomEvent('inventory.product.retrieved', {
+                        detail: {
+                            line: line,
+                            lineIndex: lineIndex,
+                            product: record
+                        }
+                    })
+                    dispatchEvent(customEvent);
+
+                    // Calculate line total
                     this.calculateLineTotal(line);
                 });
 

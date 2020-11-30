@@ -1,5 +1,7 @@
 <div class="card">
     <div class="card-content inventory-container">
+        @yield('inventory-card-content-start')
+
         {{-- <span class="card-title">Card Title</span> --}}
         <table class="inventory-table">
             <thead>
@@ -61,5 +63,7 @@
                 @endforeach
             </tbody>
         </table>
+
+        @yield('inventory-card-content-end')
     </div>
 </div>

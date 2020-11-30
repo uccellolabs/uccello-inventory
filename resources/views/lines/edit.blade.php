@@ -4,6 +4,8 @@
     <div class="col s12">
         <div class="card">
             <div class="card-content inventory-container">
+                @yield('inventory-card-content-start')
+
                 {{-- <span class="card-title">Card Title</span> --}}
                 <table class="inventory-table">
                     <thead>
@@ -105,10 +107,16 @@
                     </tbody>
                 </table>
 
+                @yield('inventory-card-content-end')
+
                 <div class="card-action">
+                    @yield('inventory-card-action-start')
+
                     <button class="btn green waves-effect add-line">
                         <i class="material-icons left">add</i>{{ trans('inventory::inventory.add_line') }}
                     </button>
+
+                    @yield('inventory-card-action-end')
                 </div>
             </div>
         </div>
@@ -116,17 +124,17 @@
 </div>
 
 @section('extra-content')
-@foreach ($relatedModules as $moduleName => $moduleData)
+    @foreach ($relatedModules as $moduleName => $moduleData)
         @php($relatedModule = ucmodule($moduleName))
         @if (!empty($relatedModule) && Auth::user()->canRetrieve($domain, $relatedModule))
         <div id="inventoryModal_{{ $relatedModule->name }}"
             class="modal"
             data-record-detail-url="{{ ucroute('uccello.detail.record', $domain, $relatedModule, ['%id%']) }}"
-            data-label="{{ $_relatedModule->mapping->label ?? '' }}"
-            data-description="{{ $_relatedModule->mapping->description ?? '' }}"
-            data-vat-rate="{{ $_relatedModule->mapping->vat_rate ?? '' }}"
-            data-unit-price="{{ $_relatedModule->mapping->unit_price ?? '' }}"
-            data-unit="{{ $_relatedModule->mapping->unit ?? '' }}">
+            data-label="{{ $moduleData->mapping->label ?? '' }}"
+            data-description="{{ $moduleData->mapping->description ?? '' }}"
+            data-vat-rate="{{ $moduleData->mapping->vat_rate ?? '' }}"
+            data-unit-price="{{ $moduleData->mapping->unit_price ?? '' }}"
+            data-unit="{{ $moduleData->mapping->unit ?? '' }}">
             <div class="modal-content">
                 <div class="row">
                     <div class="col s12 modal-body">
