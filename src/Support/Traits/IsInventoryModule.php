@@ -46,6 +46,11 @@ trait IsInventoryModule
         });
     }
 
+    public function toggleUpdateEvent($value)
+    {
+        $this->stopUpdateEvent = $value;
+    }
+
     public function getVatTotalsAttribute()
     {
         $vatTotals = [];
@@ -229,6 +234,10 @@ trait IsInventoryModule
 
     protected function saveHeaderTotals()
     {
+        if (!request('lines')) {
+            return;
+        }
+
         $totals = $this->totals;
 
         $this->{$this->inventoryMapping['header']['total_excl_tax']} = (float) $totals['total_excl_tax'];
