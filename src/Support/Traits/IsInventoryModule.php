@@ -234,7 +234,7 @@ trait IsInventoryModule
 
     protected function saveHeaderTotals()
     {
-        if (!request('lines')) {
+        if (!request()->has('lines')) { // Important if we are not using UI (e.g. Import)
             return;
         }
 
@@ -250,6 +250,10 @@ trait IsInventoryModule
 
     protected function saveLines()
     {
+        if (!request()->has('lines')) { // Important if we are not using UI (e.g. Import)
+            return;
+        }
+
         $lineIds = [];
 
         $lines = (array) request('lines');
