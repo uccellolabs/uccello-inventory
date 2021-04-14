@@ -1,0 +1,8 @@
+{
+    "scripts": {
+        "post-install": [
+            "migrate",
+            "vendor:publish --tag inventory-assets"
+        ]
+    }
+}

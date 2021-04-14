@@ -39,6 +39,7 @@ Add the following lines to the model related to the module you want to transform
         'header' => [
             'total_excl_tax' => 'total_excl_tax', // Replace the value by the name of the field in your module (for automatic update)
             'total_incl_tax' => 'total_incl_tax', // Replace the value by the name of the field in your module (for automatic update)
+            'total_vat' => 'total_vat', // Replace the value by the name of the field in your module (for automatic update)
         ],
 
       	// Replace all values by your columns names
@@ -97,14 +98,14 @@ class AlterOrderLinesTable extends Migration
             $table->string('product_uuid')->nullable();
             $table->string('label')->nullable();
             $table->text('description')->nullable();
-            $table->decimal('vat_rate', 5, 2)->nullable()
+            $table->decimal('vat_rate', 5, 2)->nullable();
             $table->decimal('unit_price', 13, 2)->nullable();
-            $table->string('price_type')->nullable()
+            $table->string('price_type')->nullable();
             $table->decimal('qty', 13, 2)->nullable();
             $table->decimal('price', 13, 2)->nullable();
             $table->string('unit')->nullable();
             $table->decimal('price_excl_tax', 13, 2)->nullable();
-            $table->decimal('price_incl_tax', 13, 2)->nullable()
+            $table->decimal('price_incl_tax', 13, 2)->nullable();
             $table->timestamps();
 
             $table->foreign('order_id')->references('id')->on('orders');
@@ -118,6 +119,7 @@ class AlterOrderLinesTable extends Migration
             'header' => [
                 'total_excl_tax' => 'total_excl_tax',
                 'total_incl_tax' => 'total_incl_tax',
+                'total_vat' => 'total_vat',
             ],
             'related_modules' => [ // You can add as many modules as you want
                 'product' =>  [ // Name of the related module
@@ -169,7 +171,6 @@ class AlterOrderLinesTable extends Migration
 
       @include('inventory::total.edit')
   @endsection
-  @append
   ```
 
 - Create or edit your module detail view (e.g. `resources/views/uccello/modules/order/detail/main.blade.php`):

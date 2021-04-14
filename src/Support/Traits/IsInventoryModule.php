@@ -12,6 +12,7 @@ trait IsInventoryModule
     //     'header' => [
     //         'total_excl_tax' => 'total_excl_tax',
     //         'total_incl_tax' => 'total_incl_tax',
+    //         'total_vat' => 'total_vat',
     //     ],
     //     'lines' => [
     //         'related_id' => 'related_id',
@@ -242,6 +243,7 @@ trait IsInventoryModule
 
         $this->{$this->inventoryMapping['header']['total_excl_tax']} = (float) $totals['total_excl_tax'];
         $this->{$this->inventoryMapping['header']['total_incl_tax']} = (float) $totals['total_incl_tax'];
+        $this->{$this->inventoryMapping['header']['total_vat']} = (float) $totals['total_vat'];
 
         $this->stopUpdateEvent = true; // Mandatory else the event is launch a lot of times
         $this->save();
